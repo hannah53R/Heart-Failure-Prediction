@@ -14,7 +14,7 @@ This project uses an assortment of machine learning algorithms () to predict sur
 # About the dataset 
 The original dataset is publicly available and can be found at https://plos.figshare.com/articles/dataset/Survival_analysis_of_heart_failure_patients_A_case_study/5227684/1 
 
-The dataset is composed of 299 patient medical records across 13 features. The records detail information on patient lifestyle and clinical and body readings. Some features are categorical, while others are continuous or discrete. Explanation of variables can be found below. Boolean variables define 0 as being false and 1 as being true, unless otherwise stated. 
+The dataset is composed of 299 patient medical records across 13 features, collected in 2015. Some of the variable names were changed to follow a common formatting style. The records detail information on patient lifestyle and clinical and body readings. Some features are categorical, while others are continuous or discrete. Explanation of variables can be found below. Boolean variables define 0 as being false and 1 as being true, unless otherwise stated. 
 
 Age: the age of the patient (yrs).
 
