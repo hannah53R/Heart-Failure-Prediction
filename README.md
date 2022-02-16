@@ -20,7 +20,7 @@ Age: the age of the patient (yrs).
 
 Anaemia: if the patient has anaemia (boolean). A patient was considered to have anaemia if haematocrit levels were lower than 36%. 
 
-High Blood Pressure: if the patient has high blood pressure (boolean). No information on the criteria used to classify a patient as having high blood pressure.
+High Blood Pressure: if the patient has high blood pressure (boolean). There was no information from the original study stating the criteria used to classify a patient as having high blood pressure.
 
 Creatinine Phosphokinase (CPK_Level): level of CPK enzyme in blood (mcg/L). 
 
