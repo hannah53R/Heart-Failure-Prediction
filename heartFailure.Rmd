@@ -14,14 +14,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## The Data
 
-```{r}
-library(ggplot2)
-library(cowplot) # for arranging multiple plots
-library(dplyr) # for data manipulation
-```
-
 Import the data and change some of the column names.
 
+```{r, message=FALSE}
+library(ggplot2)
+library(cowplot) # for arranging multiple plots
+library(tidyverse) # tibbles
+```
 ```{r}
 df = read.csv("../S1Data.csv")
 
@@ -144,8 +143,6 @@ col4 = plot_grid(NULL, legend, NULL, ncol=1)
 plot_grid(col1, col2, col3, col4,
           rel_widths=c(1,1,1,0.8),
           nrow=1)  
-# rel_widths=c(1,1,1,1.3)
-prop.table(table(df$Death_Event))
 ```
 
 The above plots detail the counts of each class within each binary feature, which are further divided into patients who survived (pink) and patients who died (blue). 
@@ -153,6 +150,10 @@ The above plots detail the counts of each class within each binary feature, whic
 Non-anemics and anemics share close to equal proportions, as is the case for diabetics and non-diabetics. The remaining binary features show unbalance among each of their classes. For class 0 and 1 of each feature, patient survival (Death_Event=0) is the majority outcome. 
 
 The target variable (Death_Event) is not balanced. About 68% (203) of patients survived while around 32% (96) died. 
+
+```{r}
+prop.table(table(df$Death_Event))
+```
 
 ## Boxplot and density plots of numeric features
 
@@ -205,7 +206,7 @@ EJ2=ggplot(df, aes(x=Ejection_Fraction, fill=Death_Event)) +
 plot_grid(EJ1, EJ2, nrow=1)
 ```
 
-The density plot of Ejection_Fraction indicates patients that pump less than 30% blood for each contraction may have a higher risk of death. 
+Both classes contain outliers and bimodal distributions. Deceases patients have positive skew in the density plot. 
 
 ## Platelets
 
@@ -222,7 +223,7 @@ plat2=ggplot(df, aes(x=Platelets, fill=Death_Event)) +
 plot_grid(plat1, plat2, nrow=1)
 ```
 
-The box plot of Death_Event and Platelets shows many outliers in the number of Platelets for patients who survived and two outliers in patients who died. The density plot shows that for each Death_Event the number of Platelets loosely follow a normal distribution. 
+The box plot of Death_Event and Platelets shows many outliers in the number of Platelets for patients who survived and two outliers in patients who died. Both classes loosely follow a normal distribution. 
 
 ## Serum Creatinine
 
@@ -240,7 +241,7 @@ cret2=ggplot(df, aes(x=Creatinine, fill=Death_Event)) +
 plot_grid(cret1, cret2, nrow=1)
 ```
 
-As was the case for some of the other plots, outliers are observed for Serum Creatinine levels in patients who survived/died. The density plot is skewed positively. Deaths seem to overtake survivors with values of Creatinine greater than 1.25.
+As was the case for Platelets, CPK_Level, and Ejection_Fraction, outliers are observed for Serum Creatinine levels in patients who survived/died. The density plot is skewed positively for both classes, but is more apparent for deceased patients.
 
 ## Sodium
 
@@ -274,7 +275,7 @@ t2=ggplot(df, aes(x=Time, fill=Death_Event)) +
 plot_grid(t1, t2, nrow=1)
 ```
 
-From the plots above, patients having a shorter follow up time seem to be associated with death, while patients with a longer follow up time survived. 
+From the plots above, patients having a shorter follow up time died, while patients with a longer follow up time survived. The distribution of deaths and survivals are different, deaths are unimodal on the density plot and survivors are bimodal.
 
 ## How are the features in the dataset each related to Death Event?
 
@@ -294,7 +295,7 @@ for (i in columnnames) {
 print(pvals)
 ```
 
-The variables most strongly associated with Death_Event (having a p-value < 0.05) are Time, Creatinine, Ejection_Fraction, Age, and Sodium. However, including the Time variable when training the models is not practical and doesn't give any insight into predicting the survival of patients. Therefore Time will be omitted from being used as a predictor in this analysis. 
+The variables most strongly associated with Death_Event (having a p-value < 0.05) are Time, Creatinine, Ejection_Fraction, Age, and Sodium. However, including the Time variable when training the models is not practical and doesn't give any insight into predicting the survival of patients. Therefore, Time will be omitted from being used as a predictor in this analysis. 
 
 ```{r}
 # remove time from the df 
@@ -305,8 +306,10 @@ df = subset(df, select=-Time)
 
 In order to train each model the data needs to be split into training and testing data. Using initial_split from the rsample package will allow for the target features proportions to be conserved.
 
-```{r}
+```{r, message=FALSE}
 library(rsample) # initial_split
+```
+```{r}
 set.seed(100)
 # split data into 70% training and 30% testing
 df_split = initial_split(df, prop = 0.7, strata = Death_Event)
@@ -319,11 +322,12 @@ prop.table(table(train$Death_Event))
 prop.table(table(test$Death_Event))
 ```
 
-Using the caret package, models will be trained and tuned. Cross-Validation will be performed on the training data to optimize selection of hyperparameters, with final validation done on the testing data. 
+The models will be trained and tuned using the caret package. Cross-Validation will be performed on the training data to optimize selection of hyperparameters, with final validation done on the testing data. 
 
-```{r}
+```{r, message=FALSE}
 library(caret) # training the models
-#library(tidyverse)
+```
+```{r}
 train$Death_Event = factor(train$Death_Event)
 test$Death_Event = factor(test$Death_Event)
 
@@ -340,6 +344,11 @@ dt = train(Death_Event~., data=train, method="rpart",
            trControl=trctrl, 
            tuneGrid=expand.grid(cp=c(0.001,0.01, 0.03, 0.3, 1)))
 print(dt)
+```
+
+as_tibble() can be used to display the accuracy that was achieved with the optimal model. This can be very useful when there are multiple hyperparameters to tune and the output is long. 
+
+```{r}
 as_tibble(dt$results[which.max(dt$results[,2]),])
 ```
 
@@ -391,44 +400,34 @@ gbm = train(Death_Event~.,
             trControl=trctrl,
             tuneLength=30)
 gbm 
-# n.trees=50, interaction.depth=1, shrinkage=0.1, n.min...=10
-# accuracy: 0.7409603
 as_tibble(gbm$results[which.max(gbm$results[,5]),])
 
 ```
 
 ## Results
 
+The final test of time will be to test each models performance on the data we tucked away while the models were being trained. If the model gets a better accuracy on the testing data than the training data, then it was able to generalize well and overfitting was likely avoided. 
+
 ```{r}
 # dt
 pred_dt = predict(dt, test)
 cm_dt = confusionMatrix(pred_dt, test$Death_Event, positive="1")
 cm_dt
-# 81%
+# print out additional information on the model results
 cm_dt$byClass 
-# Sensitivity: 0.6896552
-# Specificity: 0.8688525 
-# Recall: 0.6896552 
-# Precision: 0.7142857 
 ```
 
-The Decision Tree was able to achieve an accuracy of 81% and precision 71%.
+The Decision Tree was able to achieve an accuracy of 81% and precision of 71% on the testing data. During training, the model reported an accuracy of 69%.
 
 ```{r}
 # rf
 pred_rf = predict(rf, test)
 cm_rf = confusionMatrix(pred_rf, test$Death_Event, positive="1")
 cm_rf
-# 82% accuracy
 cm_rf$byClass
-# Sensitivity: 0.5517241
-# Specificity: 0.9508197
-# Recall: 0.5517241
-# Precision: 0.8421053 -> models that are precise and accurate 
-# are repeatable and close to true values 
 ```
 
-Using Random Forests an accuracy of 82% and precision of 84% was accomplished.
+Using Random Forests an accuracy of 82% and precision of 84% was accomplished. The model only performed with 74% accuracy on the training data.
 
 ```{r}
 # svm
@@ -436,15 +435,10 @@ pred_svm = predict(svm, test)
 cm_svm = confusionMatrix(pred_svm, test$Death_Event,
                          positive="1")
 cm_svm
-# 72%
 cm_svm$byClass
-# Sensitivity: 0.3103448
-# Specificity: 0.9180328
-# Recall: 0.3103448
-# Precision: 0.6428571
 ```
 
-So far the Support Vector Machine has performed the worst, with an accuracy of 72% and precision of 64%.
+So far the Support Vector Machine has performed the worst, with an accuracy of 72% and precision of 64%. During training, the model had 74% accuracy on the training data. The model overfit with the training data and performed worse when testing.  
 
 ```{r}
 # gbm
@@ -452,23 +446,20 @@ pred_gbm = predict(gbm, test_gbm)
 cm_gbm = confusionMatrix(pred_gbm, factor(test_gbm$Death_Event))
 cm_gbm
 cm_gbm$byClass
-# Accuracy: 0.8
-# Sensitivity: 0.5172414
-# Specificity: 0.9344262
-# Recall: 0.5172414
-# Precision: 0.7894737
 ```
 
-Gradient Boosting performed well, an accuracy of 80% and precision of 79% was recorded. 
+Gradient Boosting performed well, an accuracy of 80% and precision of 79% was recorded. During training, the model performed with 74% accuracy. 
 
-To revisit the feature importance, see how GBM ranked the most important features in the dataset. 
+Time to revisit feature importance. How did GBM rank the most important features in the dataset? 
 
+```{r, message=FALSE}
+gbm_sum = summary(gbm, plotit=FALSE)
+```
 ```{r}
-gbm_sum = summary(gbm)
 gbm_sum
 ```
 
-The results from the Mann-Whitney U test listed Creatinine, Ejection Fraction, Age, and Sodium as the most important features (disregarding Time) in order of importance. Interesting enough, the GB model listed Creatinine, Ejection Fraction, Age, and Sodium in the same order as the ranking in the Mann-Whitney U test. 
+The results from the Mann-Whitney U test listed Creatinine, Ejection_Fraction, Age and Sodium as the most important features (disregarding Time) in order of importance. Interesting enough, the GB model listed Creatinine, Ejection_Fraction, Age and Sodium in the same order as the ranking in the Mann-Whitney U test. 
 
 ## TBC
 
