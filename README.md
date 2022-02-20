@@ -2,7 +2,7 @@
 EDA and prediction using machine learning in RStudio.
 
 # About
-In this project I conduct an exploratory data analysis (EDA) on heart failure data and use multiple machine learning algorithms to predict the survival of patients suffering with heart failure. I begin by visualizing the data and presenting summary statistics, then identify which features have the highest correlation to the target variable using The Mann-Whitney U test, followed by constructing the models, and finally comparing the results of the models.
+In this project I conduct an exploratory data analysis (EDA) on heart failure data and use multiple machine learning algorithms to predict the survival of patients suffering with heart failure. I begin by visualizing the data and presenting summary statistics, then identify which features have the highest correlation to the target variable using The Mann-Whitney U test, followed by constructing the models, and assessing the accuracy of each model.
 
 # Introduction
 In 2019, the World Health Organization (WHO) reported an estimated 17.9 million people died from Cardiovascular diseases (CVDs), accounting for 32% of all global deaths. Heart Failure (HF) occurs when the heart muscle isn’t able to pump blood to meet the demands of the body, and remains prevalent among people suffering with CVD.
