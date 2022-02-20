@@ -26,7 +26,7 @@ Creatinine Phosphokinase (CPK_Level): level of CPK enzyme in blood (mcg/L).
 
 Diabetes: if the patient has diabetes (boolean).
 
-Ejection Fraction: the percentage of how much blood the left ventricle pumps out with each contraction (%).
+Ejection Fraction: the percentage of how much blood the left ventricle pumps out with each contraction (%). A normal hearts Ejection Fraction is normally between 50 and 70 percent.
 
 Sex: the sex of the patient (boolean). 0 indicates female, 1 is male. 
 
