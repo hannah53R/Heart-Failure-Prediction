@@ -9,7 +9,7 @@ In 2019, the World Health Organization (WHO) reported an estimated 17.9 million 
 
 Supervised learning will be used to map inputs to outputs, or in other words, use the predictor variables across the data set to predict the target variable (death event). The target variable takes on two values, 0 or 1, so classification algorithms will be used to build the models.
 
-This project uses an assortment of machine learning algorithms () to predict survival of patients with heart failure. In practical terms, this can provide healthcare professionals with insight into what lifestyle and bodily measurements can be leveraged to help treat and mitigate patients suffering from heart failure. This information can in turn identify what patients with HF are most at risk for mortality, and allow healthcare professionals to treat them accordingly. 
+This project uses an assortment of machine learning algorithms (Decision Tree, Random Forest, Support Vector Machine and Gradient Boosting Machine) to predict survival of patients with heart failure. In practical terms, this can provide healthcare professionals with insight into what lifestyle and bodily measurements can be leveraged to help treat and mitigate patients suffering from heart failure. This information can in turn identify what patients with HF are most at risk for mortality, and allow healthcare professionals to treat them accordingly. 
 
 # About the dataset 
 The original dataset is publicly available and can be found at https://plos.figshare.com/articles/dataset/Survival_analysis_of_heart_failure_patients_A_case_study/5227684/1 
