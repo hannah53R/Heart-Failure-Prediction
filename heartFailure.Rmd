@@ -14,14 +14,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## The Data
 
-Import the data and change some of the column names.
-
 ```{r, message=FALSE}
 library(ggplot2)
 library(cowplot) # for arranging multiple plots
 library(tidyverse) # tibbles
 ```
 ```{r}
+# import the data and change some of the column names
 df = read.csv("../S1Data.csv")
 
 colnames(df)[1] = "Time"
@@ -38,7 +37,7 @@ Get a glimpse of the dataset.
 str(df)
 ```
 
-The dataset contains a mix of variable types. There are 13 features in total, with 299 observations. Binary features include Gender (0=female, 1=male), Smoking, Diabetes, High Blood Pressure, Anaemia, and the target variable Death Event. Time, Age, Ejection Fraction, Sodium, Creatinine, Platelets, and CPK Level are numeric features. 
+The dataset contains a mix of variable types. There are 13 variables in total, with 299 observations. Binary features include Gender (0=female, 1=male), Smoking, Diabetes, High_Blood_Pressure, Anaemia, and the target variable Death_Event. Time, Age, Ejection_Fraction, Sodium, Creatinine, Platelets, and CPK_Level are numeric features. 
 
 Plots will be generated using ggplot. Before creating the plots, check for any missing values in the dataset.
 
@@ -53,9 +52,7 @@ colSums(is.na(df))
 df$Death_Event = factor(df$Death_Event)
 ```
 
-## Anaemia
-
-```{r}
+```{r echo=FALSE}
 # create temp var to grab the legend for formatting issue
 temp=ggplot(df, aes(x=factor(Anaemia), fill=Death_Event)) +
   geom_bar(stat="count", position="stack", width=0.75) +
@@ -68,11 +65,7 @@ legend=get_legend(temp)
 
 # anaemia
 anaem=temp + theme(legend.position="none")
-```
 
-## Diabetes
-
-```{r}
 # diabetes
 diab=ggplot(df, aes(x=factor(Diabetes), fill=Death_Event)) +
   geom_bar(stat="count", position="stack", width=0.75) +
@@ -80,11 +73,7 @@ diab=ggplot(df, aes(x=factor(Diabetes), fill=Death_Event)) +
              position=position_stack(vjust=0.5)) +
   scale_x_discrete(name="Diabetes", labels=c("0", "1")) +
   theme(legend.position="none")
-```
 
-## High Blood Pressure
-
-```{r}
 # high blood pressure
 hbp=ggplot(df, aes(x=factor(High_Blood_Pressure),   
                    fill=Death_Event)) +
@@ -95,11 +84,6 @@ hbp=ggplot(df, aes(x=factor(High_Blood_Pressure),
                    labels=c("0", "1")) +
   theme(legend.position="none")
 
-```
-
-## Sex (0=Female, 1=Male)
-
-```{r}
 # sex
 sex=ggplot(df, aes(x=factor(Gender), fill=Death_Event)) +
   geom_bar(stat="count", position="stack", width=0.75) +
@@ -107,11 +91,7 @@ sex=ggplot(df, aes(x=factor(Gender), fill=Death_Event)) +
              position=position_stack(vjust=0.5)) +
   scale_x_discrete(name="Sex", labels=c("0", "1")) +
   theme(legend.position="none")
-```
 
-## Smoking 
-
-```{r}
 # smoking
 smoke=ggplot(df, aes(x=factor(Smoking), fill=Death_Event)) +
   geom_bar(stat="count", position="stack", width=0.75) +
@@ -119,11 +99,7 @@ smoke=ggplot(df, aes(x=factor(Smoking), fill=Death_Event)) +
              position=position_stack(vjust=0.5)) +
   scale_x_discrete(name="Smoking", labels=c("0", "1")) +
   theme(legend.position="none")
-```
 
-## Death Event (0=Survived, 1=Deceased)
-
-```{r}
 # death event 
 event=ggplot(df, aes(x=factor(Death_Event), fill=Death_Event)) +
   geom_bar(stat="count", width=0.75) +
@@ -131,18 +107,15 @@ event=ggplot(df, aes(x=factor(Death_Event), fill=Death_Event)) +
              position=position_stack(vjust=0.5)) +
   scale_x_discrete(name="Death_Event") +
   theme(legend.position="none")
-```
 
-## Counts of binary states across binary features
-
-```{r echo=FALSE}
+# put all the plots together in one visual
 col1 = plot_grid(anaem, sex, ncol=1)
 col2 = plot_grid(diab, smoke, ncol=1)
 col3 = plot_grid(hbp, event, ncol=1)
 col4 = plot_grid(NULL, legend, NULL, ncol=1)
 plot_grid(col1, col2, col3, col4,
           rel_widths=c(1,1,1,0.8),
-          nrow=1)  
+          nrow=1) 
 ```
 
 The above plots detail the counts of each class within each binary feature, which are further divided into patients who survived (pink) and patients who died (blue). 
@@ -155,11 +128,11 @@ The target variable (Death_Event) is not balanced. About 68% (203) of patients s
 prop.table(table(df$Death_Event))
 ```
 
-## Boxplot and density plots of numeric features
+## Boxplots and density plots of numeric features
 
-## Age
+### Age
 
-```{r}
+```{r echo=FALSE}
 # age
 age1=ggplot(df, aes(x=Death_Event, y=Age, color=Death_Event)) +
   geom_boxplot() +
@@ -172,11 +145,11 @@ age2=ggplot(df, aes(x=Age, fill=Death_Event)) +
 plot_grid(age1, age2, nrow=1)
 ```
 
-The density plot for Age seems to indicate a higher chance of death for patients aged 70 and older. 
+The median age of each group are similar, survivals hovered around 60 and deceased around 65. Deceased patients constitute 32% of the data but have a larger range in age than patients that survived. 
 
-## Creatinine Phosphokinase
+### Creatinine Phosphokinase
 
-```{r}
+```{r echo=FALSE}
 # CPK_Level
 CPK1=ggplot(df, aes(x=Death_Event, y=CPK_Level, color=Death_Event)) +
   geom_boxplot() +
@@ -189,11 +162,11 @@ CPK2=ggplot(df, aes(x=CPK_Level, fill=Death_Event)) +
 plot_grid(CPK1, CPK2, nrow=1)
 ```
 
-The box plot above shows many outliers for CPK_Level of patients who survived and patients who died. The density plot indicates positive skew for both classes of Death_Event. 
+Both groups of patients had many positive outliers for creatinine phosphokinase levels, however deceased patients had observations of levels over 6000 mcg/L. The distributions are similar for both groups, with most of the data concentrated at creatinine phosphokinase levels under 1000 mcg/L. 
 
-## Ejection Fraction
+### Ejection Fraction
 
-```{r}
+```{r echo=FALSE}
 # Ejection_Fraction
 EJ1=ggplot(df, aes(x=Death_Event, y=Ejection_Fraction, color=Death_Event)) +
   geom_boxplot() +
@@ -206,11 +179,11 @@ EJ2=ggplot(df, aes(x=Ejection_Fraction, fill=Death_Event)) +
 plot_grid(EJ1, EJ2, nrow=1)
 ```
 
-Both classes contain outliers and bimodal distributions. Deceases patients have positive skew in the density plot. 
+Both classes contain outliers and bimodal distributions. About 75% of individuals who died had ejection fraction percents lower than 40%. 
 
-## Platelets
+### Platelets
 
-```{r}
+```{r echo=FALSE}
 # Platelets
 plat1=ggplot(df, aes(x=Death_Event, y=Platelets, color=Death_Event)) +
   geom_boxplot() +
@@ -223,11 +196,11 @@ plat2=ggplot(df, aes(x=Platelets, fill=Death_Event)) +
 plot_grid(plat1, plat2, nrow=1)
 ```
 
-The box plot of Death_Event and Platelets shows many outliers in the number of Platelets for patients who survived and two outliers in patients who died. Both classes loosely follow a normal distribution. 
+Count of platelets among both groups have similar distributions. There is slightly more variation in patients who died, but far more outliers in patients who survived. Both classes loosely follow a normal distribution. 
 
-## Serum Creatinine
+### Serum Creatinine
 
-```{r}
+```{r echo=FALSE}
 # Serum Creatinine
 cret1=ggplot(df, aes(x=Death_Event, y=Creatinine,
                      color=Death_Event)) +
@@ -241,11 +214,11 @@ cret2=ggplot(df, aes(x=Creatinine, fill=Death_Event)) +
 plot_grid(cret1, cret2, nrow=1)
 ```
 
-As was the case for Platelets, CPK_Level, and Ejection_Fraction, outliers are observed for Serum Creatinine levels in patients who survived/died. The density plot is skewed positively for both classes, but is more apparent for deceased patients.
+As was the case for the variables Platelets, CPK_Level, and Ejection_Fraction, outliers are observed for serum creatinine (Creatinine) levels in patients who survived/died. The density plot is skewed positively for both classes, with more variation in creatinine levels for patients who died.
 
-## Sodium
+### Sodium
 
-```{r}
+```{r echo=FALSE}
 # Sodium
 na1=ggplot(df, aes(x=Death_Event, y=Sodium, color=Death_Event))+
   geom_boxplot() +
@@ -258,11 +231,11 @@ na2=ggplot(df, aes(x=Sodium, fill=Death_Event)) +
 plot_grid(na1, na2, nrow=1)
 ```
 
-Sodium levels appear to have a similar distribution among patients who survived and patients who died. There is slight negative skew in the plots for patients who survived. 
+Sodium levels have a similar distribution among patients who survived and patients who died. Median values are similar among both groups, with outliers also observed in each group. Patients who died report slightly lower sodium levels than patients who survived.
 
-## Time (days)
+### Time (days)
 
-```{r}
+```{r echo=FALSE}
 # Time
 t1=ggplot(df, aes(x=Death_Event, y=Time, color=Death_Event)) +
   geom_boxplot() +
@@ -275,11 +248,13 @@ t2=ggplot(df, aes(x=Time, fill=Death_Event)) +
 plot_grid(t1, t2, nrow=1)
 ```
 
-From the plots above, patients having a shorter follow up time died, while patients with a longer follow up time survived. The distribution of deaths and survivals are different, deaths are unimodal on the density plot and survivors are bimodal.
+Patients who survived had more variation in their follow up time. About 75% of deceased patients had follow up times less than 100 days. 
 
-## How are the features in the dataset each related to Death Event?
+## How are the features in the dataset each related to Death_Event?
 
-The Mann-Whitney U test will be used to rank each of the features. We will later use machine learning to also rank the features, then compare the results of each method.
+Feature selection can sometimes be used to improve model accuracy by filtering out the noise in the data. After initial model training and testing has finished, the models will be re-trained and tested using only the top features. 
+
+The Mann-Whitney U test can be used as a feature ranking method. It will compare the distribution of each feature for the values of Death_Event (survived and deceased) and return a p-value. Features having a p-value < 0.05 are strongly related to Death_Event, while features having a p-value > 0.05 are not related to Death_Event. More important features (higher rank) take on p-values close to 0. 
 
 ```{r}
 # p-val < 0.05 indicates the predictor variable strongly relates to death event
@@ -304,7 +279,7 @@ df = subset(df, select=-Time)
 
 ## Splitting the data
 
-In order to train each model the data needs to be split into training and testing data. Using initial_split from the rsample package will allow for the target features proportions to be conserved.
+In order to train and evaluate model performance the data needs to be split into training and testing data. Using initial_split from the rsample package will allow for the target features proportions to be conserved.
 
 ```{r, message=FALSE}
 library(rsample) # initial_split
@@ -327,15 +302,16 @@ The models will be trained and tuned using the caret package. Cross-Validation w
 ```{r, message=FALSE}
 library(caret) # training the models
 ```
-```{r}
+```{r echo=FALSE}
 train$Death_Event = factor(train$Death_Event)
 test$Death_Event = factor(test$Death_Event)
-
+```
+```{r}
 set.seed(100)
 trctrl = trainControl(method="cv", number=9, verboseIter=FALSE) 
 ```
 
-## Decision Tree
+## Decision tree
 
 ```{r}
 # build the decision tree
@@ -346,28 +322,33 @@ dt = train(Death_Event~., data=train, method="rpart",
 print(dt)
 ```
 
-as_tibble() can be used to display the accuracy that was achieved with the optimal model. This can be very useful when there are multiple hyperparameters to tune and the output is long. 
-
-```{r}
+```{r echo=FALSE}
 as_tibble(dt$results[which.max(dt$results[,2]),])
 ```
 
-## Random Forests
+The decision tree was able to classify the training data with 69% accuracy.
+
+## Random forest
 
 ```{r}
-# build the random forests model
+# build the random forest model
 set.seed(100)
 rf = train(Death_Event~., data=train, method="ranger",
            trControl=trctrl,
+           importance="permutation", 
            tuneGrid=expand.grid(mtry=c(2,3,4,5),
                                 min.node.size=c(5,10,20,40),
                                 splitrule=c("gini",
                                             "extratrees")))
 print(rf)
+```
+```{r echo=FALSE}
 as_tibble(rf$results[which.max(rf$results[,4]),])
 ```
 
-## Support Vector Machine
+The random forest model performed with 74% accuracy during training.
+
+## Support vector machine
 
 ```{r}
 # build the support vector machine model
@@ -377,10 +358,14 @@ svm = train(Death_Event~., data=train, method="svmLinear",
             preProcess = c("center", "scale"),
             tuneGrid=expand.grid(C=c(0.001,0.01,0.1,1,5,10))) 
 print(svm)
+```
+```{r echo=FALSE}
 as_tibble(svm$results[which.max(svm$results[,3]),])
 ```
 
-## Gradient Boosting Machine
+The SVM was also able to classify the target variable with 74% accuracy.
+
+## Gradient boosting machine
 
 ```{r}
 train_gbm = training(df_split)
@@ -400,13 +385,18 @@ gbm = train(Death_Event~.,
             trControl=trctrl,
             tuneLength=30)
 gbm 
+```
+```{r echo=FALSE}
 as_tibble(gbm$results[which.max(gbm$results[,5]),])
-
 ```
 
-## Results
+Gradient boosting also reported an accuracy of 74% on the training data.
 
-The final test of time will be to test each models performance on the data we tucked away while the models were being trained. If the model gets a better accuracy on the testing data than the training data, then it was able to generalize well and overfitting was likely avoided. 
+Performance will be gauged by calculating the accuracy and recall achieved on testing and training sets. Avoiding models that overfit and have low recall will be accomplished by tuning hyperparameters and reducing the amount of noise in the data via feature selection.
+
+Since the target variable is unbalanced, looking at the recall of each model will indicate how well the it was able to predict the minority class. Low recall could indicate a bias for the majority class, meaning the model is unable to distinguish patients who died from patients who survived.
+
+### DT results
 
 ```{r}
 # dt
@@ -417,7 +407,9 @@ cm_dt
 cm_dt$byClass 
 ```
 
-The Decision Tree was able to achieve an accuracy of 81% and precision of 71% on the testing data. During training, the model reported an accuracy of 69%.
+The decision tree was able to achieve an accuracy of 81%, precision of 71%, and recall of 69% on the testing data. During training, the model reported an accuracy of 69%.
+
+### RF results
 
 ```{r}
 # rf
@@ -427,7 +419,9 @@ cm_rf
 cm_rf$byClass
 ```
 
-Using Random Forests an accuracy of 82% and precision of 84% was accomplished. The model only performed with 74% accuracy on the training data.
+The random forest model has an accuracy of 82%, precision of 84%, and recall of 55% on the testing set. The model performed with 74% accuracy during training.
+
+### SVM results
 
 ```{r}
 # svm
@@ -438,7 +432,9 @@ cm_svm
 cm_svm$byClass
 ```
 
-So far the Support Vector Machine has performed the worst, with an accuracy of 72% and precision of 64%. During training, the model had 74% accuracy on the training data. The model overfit with the training data and performed worse when testing.  
+The support vector machine has performed the worst so far, with an accuracy of 72%, precision of 64%, and recall of 31%. During training accuracy was at 74%, meaning the model overfit on the testing data.
+
+### GBM results
 
 ```{r}
 # gbm
@@ -448,19 +444,277 @@ cm_gbm
 cm_gbm$byClass
 ```
 
-Gradient Boosting performed well, an accuracy of 80% and precision of 79% was recorded. During training, the model performed with 74% accuracy. 
+The gradient boosted model performed well, with an accuracy of 80%, precision of 79%, and recall of 52%. During training, the model performed with 74% accuracy. 
 
-Time to revisit feature importance. How did GBM rank the most important features in the dataset? 
+## Feature Ranking
 
-```{r, message=FALSE}
-gbm_sum = summary(gbm, plotit=FALSE)
+Feature ranking will be used in an attempt to get a performance increase from the previous models. The same training process will be followed, with slight variation in the hyperparameters. 
+
+How did each of the models rank the various features in the dataset? 
+
+### Decision tree feature ranking
+
+```{r message=FALSE}
+library(rpart.plot)
 ```
 ```{r}
-gbm_sum
+rpart.plot(dt$finalModel)
+varImp(dt, scale=FALSE)
 ```
 
-The results from the Mann-Whitney U test listed Creatinine, Ejection_Fraction, Age and Sodium as the most important features (disregarding Time) in order of importance. Interesting enough, the GB model listed Creatinine, Ejection_Fraction, Age and Sodium in the same order as the ranking in the Mann-Whitney U test. 
+Plotting the decision tree helps visualize how features are ranked, with the most important features appearing at the root of the tree. The DT model lists Creatinine, Ejection_Fraction, Age, and CPK_Level as the top 4 features. However, when passing varImp() the DT, the function generates different results: Ejection_Fraction, Age, Creatinine, and Sodium are listed as the top 4 features. This could be due to differences in how caret and rpart calculate feature importance. 
 
-## TBC
+### Gradient boosted machine feature ranking
 
+```{r message=FALSE}
+library(gbm)
+varImp(gbm, scale=FALSE)
+```
+
+Recall that the results from the Mann-Whitney U test listed Creatinine, Ejection_Fraction, Age and Sodium as the most important features (disregarding Time) in order of importance. Interesting enough, the GB model listed Creatinine, Ejection_Fraction, Age and Sodium in the same order as the ranking in the Mann-Whitney U test. 
+
+### Random forest feature ranking 
+
+```{r}
+varImp(rf, scale=FALSE)
+#importance(rf$finalModel) -> same results as above 
+```
+
+The RF model also lists Creatinine, Ejection_Fraction, Age, and Sodium as the top 4 important features. 
+
+## Re-training the models using the top features
+
+The models will be re-trained using only the top 4 features. The SVM will be trained with the most consistent top features, those being Creatinine, Ejection_Fraction, Age, and Sodium. 
+
+### GBM
+
+```{r}
+set.seed(100)
+# let the algorithm try out randomized params instead of tuning
+# ourselves
+gbm_best_feats = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium, 
+            data=train_gbm, 
+            method="gbm",
+            verbose=FALSE, 
+            trControl=trctrl,
+            tuneLength=10)
+#gbm_best_feats
+```
+```{r echo=FALSE}
+as_tibble(gbm_best_feats$results[which.max(gbm_best_feats$results[,5]),])
+```
+```{r}
+pred_gbm_bf = predict(gbm_best_feats, test_gbm)
+cm_gbm_bf = confusionMatrix(pred_gbm_bf, factor(test_gbm$Death_Event))
+cm_gbm_bf
+cm_gbm_bf$byClass
+```
+
+The GBM model improved in accuracy (80% to 82%) and recall (52% to 62%), but had worse precision (79% to 78%).
+
+Important stats: 
+Acc (train) 0.74
+Acc 0.82
+Recall 0.62
+Precision 0.78
+
+### DT
+
+```{r}
+# build the decision tree with the top 4 features
+set.seed(100)
+dt_best_feats = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium, data=train, method="rpart",
+           trControl=trctrl, 
+           tuneLength=10)
+#print(dt_best_feats)
+as_tibble(dt_best_feats$results[which.max(dt_best_feats$results[,2]),])
+# plot our model
+rpart.plot(dt_best_feats$finalModel)
+```
+
+The DT has only one split. This may be too general in classifying observations, in which case another model will be built with smaller cp values tested.
+
+```{r}
+# see how the model does when tested against the testing data
+pred_dt_bf = predict(dt_best_feats, test)
+cm_dt_bf = confusionMatrix(pred_dt_bf, test$Death_Event, positive="1")
+cm_dt_bf
+cm_dt_bf$byClass 
+```
+
+Accuracy (74%) and recall (31%) decreased compared to the original DT (81% and 69%, respectively). Precision increased slightly (71% to 75%). Better results may be obtained by selecting smaller cp values to test, as this allows for a deeper tree to be grown. 
+
+```{r}
+# bad results from above, smaller cp value will allow for a deeper tree to be grown
+set.seed(100)
+t = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium,
+          data=train, method="rpart", 
+          trControl=trctrl, 
+          tuneGrid=expand.grid(cp=c(0.01,0.02,0.025,0.03,0.035)))
+#print(t)
+as_tibble(t$results[which.max(t$results[,2]),])
+rpart.plot(t$finalModel)
+# tree looks good, see how it performs on the test data
+pred_t = predict(t, test)
+cm_t = confusionMatrix(pred_t, test$Death_Event, positive="1")
+cm_t
+cm_t$byClass
+```
+
+Making the tree deeper increased the accuracy back to 81%. Recall worsened slightly (62%) as compared to the original model, while precision improved (75%).
+
+Important stats:
+Acc (train) 0.72
+Acc 0.81
+Recall 0.62
+Precision 0.75
+
+### RF
+
+```{r}
+# build the random forests model
+set.seed(100)
+# set node size smaller to get trees with larger depth
+rf_best_feats = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium, data=train, method="ranger",
+           trControl=trctrl,
+           tuneGrid=expand.grid(mtry=c(2,3,4),
+                                min.node.size=c(20,30,40),
+                                splitrule=c("gini",
+                                            "extratrees")))
+#print(rf_best_feats)
+as_tibble(rf_best_feats$results[which.max(rf_best_feats$results[,4]),])
+
+pred_rf_bf = predict(rf_best_feats, test)
+cm_rf_bf = confusionMatrix(pred_rf_bf, test$Death_Event, positive="1")
+cm_rf_bf
+cm_rf_bf$byClass
+```
+
+The RF performed slightly worse than the original model, going from 82% accuracy to 79%. Recall remained the same (55%), while precision also decreased from 84% to 73%.
+
+Important stats:
+Acc (train) 0.73
+Acc 0.79
+Recall 0.55
+Precision 0.73
+
+### SVM
+
+```{r}
+# SVM without noise 
+set.seed(100)
+svm_best_feats = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium, data=train, method="svmLinear",
+            verbose=FALSE, trControl=trctrl, 
+            preProcess = c("center", "scale"),
+            tuneGrid=expand.grid(C=c(0.001,0.01,0.1,1,5,10))) 
+#print(svm_best_feats)
+as_tibble(svm_best_feats$results[which.max(svm_best_feats$results[,3]),])
+
+pred_svm_bf = predict(svm_best_feats, test)
+cm_svm_bf = confusionMatrix(pred_svm_bf, test$Death_Event,
+                         positive="1")
+cm_svm_bf
+cm_svm_bf$byClass
+```
+
+The SVM performed better in every respect. Accuracy increased to 77% from 72%, recall increased to 38% from 31%, and precision increased to 79% from 64%.
+
+Important stats:
+Acc (train) 0.73
+Acc 0.77
+Recall 0.38
+Precision 0.79
+
+## Model performance visualized
+<br/>
+```{r echo=FALSE}
+# plot the accuracy of training and testing set before removing
+# the noisy features 
+model = c("DT", "RF", "SVM", "GBM")
+train_acc = c(max(dt$results$Accuracy),
+              max(rf$results$Accuracy),
+              max(svm$results$Accuracy),
+              max(gbm$results$Accuracy))
+train_acc = round(train_acc, 2)
+
+test_acc = c(cm_dt$overall[["Accuracy"]],
+             cm_rf$overall[["Accuracy"]],
+             cm_svm$overall[["Accuracy"]],
+             cm_gbm$overall[["Accuracy"]])
+test_acc = round(test_acc, 2)
+
+messy = data.frame(train_acc, test_acc, model)
+traintestacc = tidyr::pivot_longer(messy, 
+                                   cols=c("train_acc","test_acc"),
+                                   names_to="fill",
+                                   values_to="accuracy")
+
+ggplot(traintestacc, aes(x=model, y=accuracy, fill=fill)) +
+  geom_bar(stat="identity", position="dodge") +
+  geom_text(aes(label=accuracy), 
+            position=position_dodge(0.9),
+            vjust=0) +
+  labs(title="Accuracy of Training and Testing Sets Using Entire Dataset") +
+  theme(legend.title=element_blank()) +
+  scale_fill_discrete(labels=c("test", "train"))
+```
+
+```{r echo=FALSE}
+# plot the performance of models that used only top 4 features
+train_acc_bf = c(max(t$results$Accuracy),
+              max(rf_best_feats$results$Accuracy),
+              max(svm_best_feats$results$Accuracy),
+              max(gbm_best_feats$results$Accuracy))
+train_acc_bf = round(train_acc_bf, 2)
+
+test_acc_bf = c(cm_t$overall[["Accuracy"]],
+             cm_rf_bf$overall[["Accuracy"]],
+             cm_svm_bf$overall[["Accuracy"]],
+             cm_gbm_bf$overall[["Accuracy"]])
+test_acc_bf = round(test_acc_bf, 2)
+
+messy_bf = data.frame(train_acc_bf, test_acc_bf, model)
+traintestacc_bf = tidyr::pivot_longer(messy_bf,
+                                      cols=c("train_acc_bf",
+                                             "test_acc_bf"),
+                                      names_to="fill",
+                                      values_to="accuracy")
+
+ggplot(traintestacc_bf, aes(x=model, y=accuracy, fill=fill)) +
+  geom_bar(stat="identity", position="dodge") +
+  geom_text(aes(label=accuracy), 
+            position=position_dodge(0.9),
+            vjust=0) +
+  labs(title="Accuracy of Training and Testing Sets Using Top Four Features") +
+  theme(legend.title=element_blank()) +
+  scale_fill_discrete(labels=c("test", "train"))
+
+```
+
+Focusing on accuracy alone, feature selection was able to gain improvement for the decision tree, gradient boosted machine and support vector machine. Feature selection had most improvement on the support vector machine, while it caused a decline in accuracy for the random forest. None of the models that trained with the top 4 features overfit on the testing data. 
+
+## Results
+
+```{r echo=FALSE, results='asis'}
+library(knitr)
+row_names = c("training accuracy", "testing accuracy",
+              "recall", "precision")
+
+dt_results = data.frame(DT_initial=c(0.69, 0.81, 0.69, 0.71), 
+                        DT_improved=c(0.72, 0.81, 0.62, 0.75),
+                        RF_initial=c(0.74, 0.82, 0.55, 0.84),
+                        RF_improved=c(0.73, 0.79, 0.55, 0.73),
+                        SVM_initial=c(0.74, 0.72, 0.31, 0.64),
+                        SVM_improved=c(0.73, 0.77, 0.38, 0.79),
+                        GBM_initial=c(0.74, 0.80, 0.52, 0.79),
+                        GBM_improved=c(0.74, 0.82, 0.62, 0.78))
+rownames(dt_results) = row_names
+kable(dt_results, caption="Model performance results")
+```
+
+The best performing models were the initial decision tree, the improved decision tree and the improved gradient boosted machine. These three models had the best testing accuracy and recall.
+
+The worst performing models, measured by testing accuracy and recall, were the initial gradient boosted machine, the initial support vector machine and the improved support vector machine. 
+
+## Conclusion TBC
 
