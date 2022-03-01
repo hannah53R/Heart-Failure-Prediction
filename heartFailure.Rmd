@@ -296,6 +296,7 @@ prop.table(table(train$Death_Event))
 
 prop.table(table(test$Death_Event))
 ```
+The training set contains 67.9% survivors and 32.1% deceased, while the testing set contains 67.7% survivors and 32.2% deceased.
 
 The models will be trained and tuned using the caret package. Cross-Validation will be performed on the training data to optimize selection of hyperparameters, with final validation done on the testing data. 
 
@@ -394,7 +395,7 @@ Gradient boosting also reported an accuracy of 74% on the training data.
 
 Performance will be gauged by calculating the accuracy and recall achieved on testing and training sets. Avoiding models that overfit and have low recall will be accomplished by tuning hyperparameters and reducing the amount of noise in the data via feature selection.
 
-Since the target variable is unbalanced, looking at the recall of each model will indicate how well the it was able to predict the minority class. Low recall could indicate a bias for the majority class, meaning the model is unable to distinguish patients who died from patients who survived.
+Since the target variable is unbalanced, looking at the recall of each model will indicate how well they were able to predict the minority class. Low recall could indicate a bias for the majority class, meaning the model is unable to distinguish patients who died from patients who survived.
 
 ### DT results
 
@@ -485,38 +486,6 @@ The RF model also lists Creatinine, Ejection_Fraction, Age, and Sodium as the to
 ## Re-training the models using the top features
 
 The models will be re-trained using only the top 4 features. The SVM will be trained with the most consistent top features, those being Creatinine, Ejection_Fraction, Age, and Sodium. 
-
-### GBM
-
-```{r}
-set.seed(100)
-# let the algorithm try out randomized params instead of tuning
-# ourselves
-gbm_best_feats = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium, 
-            data=train_gbm, 
-            method="gbm",
-            verbose=FALSE, 
-            trControl=trctrl,
-            tuneLength=10)
-#gbm_best_feats
-```
-```{r echo=FALSE}
-as_tibble(gbm_best_feats$results[which.max(gbm_best_feats$results[,5]),])
-```
-```{r}
-pred_gbm_bf = predict(gbm_best_feats, test_gbm)
-cm_gbm_bf = confusionMatrix(pred_gbm_bf, factor(test_gbm$Death_Event))
-cm_gbm_bf
-cm_gbm_bf$byClass
-```
-
-The GBM model improved in accuracy (80% to 82%) and recall (52% to 62%), but had worse precision (79% to 78%).
-
-Important stats: 
-Acc (train) 0.74
-Acc 0.82
-Recall 0.62
-Precision 0.78
 
 ### DT
 
@@ -625,6 +594,38 @@ Acc 0.77
 Recall 0.38
 Precision 0.79
 
+### GBM
+
+```{r}
+set.seed(100)
+# let the algorithm try out randomized params instead of tuning
+# ourselves
+gbm_best_feats = train(Death_Event~Creatinine+Ejection_Fraction+Age+Sodium, 
+            data=train_gbm, 
+            method="gbm",
+            verbose=FALSE, 
+            trControl=trctrl,
+            tuneLength=10)
+#gbm_best_feats
+```
+```{r echo=FALSE}
+as_tibble(gbm_best_feats$results[which.max(gbm_best_feats$results[,5]),])
+```
+```{r}
+pred_gbm_bf = predict(gbm_best_feats, test_gbm)
+cm_gbm_bf = confusionMatrix(pred_gbm_bf, factor(test_gbm$Death_Event))
+cm_gbm_bf
+cm_gbm_bf$byClass
+```
+
+The GBM model improved in accuracy (80% to 82%) and recall (52% to 62%), but had worse precision (79% to 78%).
+
+Important stats: 
+Acc (train) 0.74
+Acc 0.82
+Recall 0.62
+Precision 0.78
+
 ## Model performance visualized
 <br/>
 ```{r echo=FALSE}
@@ -648,7 +649,7 @@ traintestacc = tidyr::pivot_longer(messy,
                                    cols=c("train_acc","test_acc"),
                                    names_to="fill",
                                    values_to="accuracy")
-
+# why is ggplot changing the order of variables in the graphs???
 ggplot(traintestacc, aes(x=model, y=accuracy, fill=fill)) +
   geom_bar(stat="identity", position="dodge") +
   geom_text(aes(label=accuracy), 
@@ -717,4 +718,5 @@ The best performing models were the initial decision tree, the improved decision
 The worst performing models, measured by testing accuracy and recall, were the initial gradient boosted machine, the initial support vector machine and the improved support vector machine. 
 
 ## Conclusion TBC
+
 
