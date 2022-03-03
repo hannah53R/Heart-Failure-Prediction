@@ -393,7 +393,7 @@ as_tibble(gbm$results[which.max(gbm$results[,5]),])
 
 Gradient boosting also reported an accuracy of 74% on the training data.
 
-Performance will be gauged by calculating the accuracy and recall achieved on testing and training sets. Avoiding models that overfit and have low recall will be accomplished by tuning hyperparameters and reducing the amount of noise in the data via feature selection.
+Performance will be gauged by calculating the accuracy, recall and precision achieved on testing and training sets. Avoiding models that overfit and have low recall will be accomplished by tuning hyperparameters and reducing the amount of noise in the data via feature selection.
 
 Since the target variable is unbalanced, looking at the recall of each model will indicate how well they were able to predict the minority class. Low recall could indicate a bias for the majority class, meaning the model is unable to distinguish patients who died from patients who survived.
 
